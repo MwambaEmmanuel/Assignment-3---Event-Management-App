@@ -1,0 +1,28 @@
+service: event-management-app
+env: node
+buildCommand: "npm ci && npm run build"
+startCommand: "npm start"
+services:
+  - type: web
+    name: event-management-app
+    runtime: docker
+    plan: free
+    buildCommand: bun install && bun run db:generate
+    startCommand: bun run start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: ETHEREAL_USER
+        sync: false
+      - key: ETHEREAL_PASS
+        sync: false
+      - key: CORS_ORIGIN
+        value: "*"

@@ -1,46 +1,137 @@
 # Event Management App (Monolith)
 
-Simple, beginner-friendly monolithic backend for managing events with authentication, RSVP tracking, email notifications and live updates.
+A production-ready monolithic backend for managing community events with authentication, RSVP tracking, email notifications, and real-time WebSocket updates.
 
-Quick start
+## 🚀 Quick Start
 
-1. Copy `.env.example` to `.env` and fill values (Postgres DATABASE_URL, JWT_SECRET, EMAIL_*).
-2. Install dependencies:
+### Prerequisites
+- Node.js v18+
+- PostgreSQL database (Neon recommended)
+- Email service (Gmail or Ethereal)
 
-```bash
-npm install
-```
+### Installation
 
-3. Run Prisma migrations (ensure `DATABASE_URL` is set to a reachable Postgres instance):
+1. **Clone and install:**
+   ```bash
+   git clone https://github.com/MwambaEmmanuel/Assignment-3---Event-Management-App.git
+   cd "Assignment 3 - Event-Management-App"
+   npm install
+   ```
 
-```bash
-npx prisma migrate dev --name init
-```
+2. **Configure environment:**
+   - Copy `.env.example` to `.env`
+   - Fill in your `DATABASE_URL`, `JWT_SECRET`, and email credentials
 
-4. Start in development:
+3. **Set up database:**
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev --name init
+   ```
 
-```bash
-npm run dev
-```
+4. **Start server:**
+   ```bash
+   npm run dev
+   ```
 
-APIs
+Server runs on `http://localhost:5000`
 
-- `POST /api/auth/register` - register
-- `POST /api/auth/login` - login
-- `GET /api/events` - list events
-- `POST /api/events` - create event (authenticated)
-- `PUT /api/events/:id` - update event (owner or admin)
-- `DELETE /api/events/:id` - delete event (owner or admin)
+## 📖 Complete Setup Guide
+
+For detailed step-by-step instructions including:
+- Database setup (Neon/PostgreSQL)
+- Email configuration (Gmail/Ethereal)
+- Testing with Insomnia/Postman
+- Deployment to Render
+- Troubleshooting
+
+**👉 See [SETUP_GUIDE.md](./SETUP_GUIDE.md)**
+
+## 🔌 API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login and receive JWT token
+
+### Events
+- `GET /api/events` - List all events
+- `POST /api/events` - Create event (authenticated)
+- `PUT /api/events/:id` - Update event (owner/admin only)
+- `DELETE /api/events/:id` - Delete event (owner/admin only)
+
+### RSVP
 - `POST /api/rsvp` - RSVP to event (authenticated)
+  - Body: `{ "eventId": 1, "status": "GOING" }`
+  - Status options: `GOING`, `MAYBE`, `NOT_GOING`
 
-WebSocket
+## 🔄 Real-Time Updates (WebSocket)
 
-Connect a client to the same server's WebSocket (ws://HOST) to receive `event` messages for updates and `rsvp` messages for RSVP notifications.
+Connect to `ws://localhost:5000` to receive:
+- Event updates (created/updated/deleted)
+- RSVP notifications
 
-Notes
+Example:
+```javascript
+const ws = new WebSocket('ws://localhost:5000');
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log(data); // { type: 'event', payload: {...} }
+};
+```
 
-- Keep code simple and modular for learning.
-- This repo is configured for deployment on Render or similar platforms.
+## 🏗️ Tech Stack
+
+- **Runtime:** Node.js + Express
+- **Database:** PostgreSQL + Prisma ORM
+- **Auth:** JWT + bcryptjs
+- **Email:** Nodemailer
+- **Real-time:** WebSocket (ws)
+- **Language:** TypeScript
+
+## 📁 Project Structure
+
+```
+src/
+├── config/          # Prisma client configuration
+├── controllers/     # Business logic (auth, events, RSVP)
+├── middlewares/     # Authentication & authorization
+├── routes/          # API route definitions
+├── services/        # Email & WebSocket services
+├── utils/           # JWT & error handling utilities
+└── index.ts         # Express server entry point
+
+prisma/
+└── schema.prisma    # Database schema (User, Event, RSVP)
+```
+
+## 🧪 Testing
+
+### Example: Register & Create Event
+
+```powershell
+# 1. Register
+$body = @{ name = "John"; email = "john@test.com"; password = "pass123" } | ConvertTo-Json
+$response = Invoke-RestMethod -Uri "http://localhost:5000/api/auth/register" -Method POST -Body $body -ContentType "application/json"
+$token = $response.data.token
+
+# 2. Create Event
+$headers = @{ "Authorization" = "Bearer $token" }
+$body = @{ title = "Meetup"; description = "Tech talk"; date = "2024-12-15T18:00:00Z"; location = "Online" } | ConvertTo-Json
+Invoke-RestMethod -Uri "http://localhost:5000/api/events" -Method POST -Headers $headers -Body $body -ContentType "application/json"
+```
+
+See [SETUP_GUIDE.md](./SETUP_GUIDE.md) for more examples.
+
+## 🌐 Deployment
+
+Configured for deployment on Render:
+- Build: `npm ci && npx prisma generate && npm run build`
+- Start: `npm start`
+
+See [SETUP_GUIDE.md](./SETUP_GUIDE.md) for full deployment instructions.
+
+## 📄 License
+
+MIT
 # Event Management Application
 
 A monolith event management application with user authentication, role-based access control, real-time updates, and database integration.
